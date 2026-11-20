@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+velvy-discord-bot/node_modules/
+velvy-studio/node_modules/
+
+# Sensitive Bot Tokens, Keys and User Database
+velvy-discord-bot/config.json
+velvy-discord-bot/database.json
+velvy_settings.json
+*.env
+
+# Production builds and executables
+dist/
+dist_bin/
+dist_build/
+dist_release/
+*.exe
+*.blockmap
+
+# Proprietary Workflows, Internal Architecture & Research
+VELVYJUTSU*.json
+VELVYJUTSU_LOGBOOK.md
+archive/
+scratch/
+
+# Temporary test media
+*.mp4
+*.mov
+teste.mp4
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,61 @@
+{
+  "name": "velvy-studio",
+  "version": "1.0.0",
+  "description": "Velvy Studio Pro - IA Video & Studio Suite",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.velvy.studio",
+    "productName": "Velvy Studio Pro",
+    "directories": {
+      "output": "../dist_build"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "installerHeaderIcon": "build/installerIcon.ico",
+      "artifactName": "VelvyStudio-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "VelvyStudio-Portable-${version}.${ext}"
+    },
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "files": [
+      "**/*",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/*.map"
+    ]
+  },
+  "keywords": [
+    "velvyjutsu",
+    "electron",
+    "video-generator",
+    "comfyui",
+    "automation"
+  ],
+  "author": "dj & ANON",
+  "license": "Commercial",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

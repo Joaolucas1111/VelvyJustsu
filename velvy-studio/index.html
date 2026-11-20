@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velvy Jutsu • Gerador de Vídeos</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand" id="brand-logo-container" style="cursor:pointer;" title="Velvy Studio Pro">
+        <img class="brand-logo" src="assets/logo.png" width="34" height="34" style="border-radius:8px;object-fit:cover;box-shadow:0 0 12px rgba(168,85,247,0.4);" alt="Velvy">
+        <span>Velvy<br>Jutsu</span>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-section-title">SUÍTE VELVY</div>
+
+        <button class="nav-btn active" data-tab="queue-tab" data-mode="video">
+          <span class="ico">🎬</span>
+          <span class="nav-label">Gerar Vídeo</span>
+          <span class="nav-badge" id="queue-badge">0</span>
+        </button>
+
+        <button class="nav-btn" data-tab="faceswap-tab" data-mode="face_swap">
+          <span class="ico">🎭</span>
+          <span class="nav-label">Face Swap</span>
+          <span class="nav-badge hot-badge">Klein 9B</span>
+        </button>
+
+        <button class="nav-btn" data-tab="upscale-tab" data-mode="upscale">
+          <span class="ico">🔍</span>
+          <span class="nav-label">4K Upscale</span>
+          <span class="nav-badge pro-badge">SeedVR2</span>
+        </button>
+
+        <button class="nav-btn" data-tab="clothes-tab" data-mode="clothes_swap">
+          <span class="ico">👗</span>
+          <span class="nav-label">Troca Roupa</span>
+          <span class="nav-badge">Flux</span>
+        </button>
+
+        <button class="nav-btn" data-tab="carousel-tab" data-mode="carousel">
+          <span class="ico">📸</span>
+          <span class="nav-label">Carrossel</span>
+          <span class="nav-badge">Multi-Pose</span>
+        </button>
+
+        <div class="nav-section-title" style="margin-top:10px;">UTILITÁRIOS</div>
+
+        <button class="nav-btn" data-tab="frame-extractor-tab">
+          <span class="ico">🎞️</span>
+          <span class="nav-label">Frame Extractor</span>
+          <span class="nav-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;">Web</span>
+        </button>
+
+        <div class="nav-section-title" style="margin-top:10px;">SISTEMA & NUVEM</div>
+
+        <button class="nav-btn" data-tab="platform-tab">
+          <span class="ico">🔐</span>
+          <span class="nav-label">Conta RunningHub</span>
+          <span class="nav-badge" style="background:rgba(52,211,153,0.18);color:#34d399;">Login</span>
+        </button>
+
+        <button class="nav-btn" data-tab="history-tab">
+          <span class="ico">◷</span>
+          <span class="nav-label">Histórico / Fila</span>
+        </button>
+
+        <button class="nav-btn" data-tab="inspector-tab">
+          <span class="ico">🔬</span>
+          <span class="nav-label">Inspetor DOM</span>
+        </button>
+
+        <button class="nav-btn" data-tab="settings-tab">
+          <span class="ico">⚙</span>
+          <span class="nav-label">Configurações</span>
+        </button>
+      </nav>
+
+      <!-- Upgrade Pro Card -->
+      <div class="upgrade">
+        <div class="crown">♛</div>
+        <b>Upgrade para Pro</b>
+        <p>Desbloqueie mais recursos e gere vídeos ainda maiores!</p>
+        <button type="button" id="btn-upgrade-pro">Ver Planos →</button>
+      </div>
+
+      <!-- User Profile -->
+      <div class="profile">
+        <div class="avatar">JL</div>
+        <div class="profile-name">
+          João Lucas<br>
+          <small style="color:#a38bc6">● Online</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="welcome" id="topbar-welcome">Transforme suas ideias em vídeos incríveis com IA ✨</div>
+        <div class="top-actions">
+          <div class="status-pill-top" id="workflow-status-pill">
+            <span class="status-indicator offline"></span>
+            <span id="workflow-status-text">Aguardando Plataforma...</span>
+          </div>
+
+          <div class="tier-wrapper" title="Selecione o plano de GPU da RunningHub">
+            <select id="queue-gpu-tier" class="tier-select-top">
+              <option value="Lite/Plus" selected>⚡ Lite / Plus (Plano Grátis)</option>
+              <option value="Ultra-6000D">🔥 Ultra-6000D (Assinante / Rápido)</option>
+              <option value="Lite/Standard">🌱 Lite / Standard (Econômico)</option>
+            </select>
+          </div>
+
+          <button type="button" class="top-btn" id="btn-dismiss-popups" title="Fecha banners promocionais, avisos e modais">✕ Fechar Popups</button>
+          <button type="button" class="top-btn" id="btn-open-workflow" title="Recarrega o workflow no webview">Abrir Workflow</button>
+          <button type="button" class="token" id="token-badge">⚡ Tokens: Ilimitados (Zero-Créditos) ⌄</button>
+        </div>
+      </header>
+
+      <!-- TAB 1: GERAR VÍDEO & PREVIEW -->
+      <section class="tab-pane active" id="queue-tab">
+        <div class="layout">
+          <!-- Left Panel: Form & Actions -->
+          <div class="panel">
+            <div class="panel-title">
+              <span class="spark">▶</span>
+              <span id="page-title">Criar Novo Vídeo</span>
+            </div>
+            <p class="sub" id="page-subtitle">Envie suas referências e deixe a IA criar seu vídeo.</p>
+
+            <!-- Task Name / Prompt -->
+            <div class="prompt-wrap">
+              <input type="text" id="task-name" placeholder="Identificador da tarefa (Ex: Danca_Vestido_Preto_Take01)...">
+            </div>
+
+            <!-- Trava / Fixação de Modelo no Vídeo -->
+            <div id="video-fixed-badge" class="fixed-badge" style="margin-bottom:12px;cursor:pointer;" title="Modelo fixada para geração de vídeo">
+              <span class="badge-lock" id="video-badge-icon">🔓</span>
+              <span id="video-fixed-badge-text">Nenhum rosto fixado (Use foto avulsa ou fixe uma modelo no Face Swap)</span>
+            </div>
+
+            <!-- Upload Grid -->
+            <div class="input-grid">
+              <!-- Reference Image Dropzone -->
+              <div class="upload" id="drop-image">
+                <input type="hidden" id="image-path">
+                <input type="file" id="file-input-image" accept="image/*" style="display:none">
+                <span class="upload-icon">▧</span>
+                <b>Enviar imagem de referência</b>
+                <small id="image-label">Arraste ou clique • PNG/JPG (Modelo / Roupa)</small>
+                <img class="preview-thumb" id="imageThumb" alt="Preview da Foto">
+                <button type="button" class="btn-subaction" id="btn-browse-image" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+
+              <!-- Motion Guide Video Dropzone -->
+              <div class="upload" id="drop-video">
+                <input type="hidden" id="video-path">
+                <input type="file" id="file-input-video" accept="video/*" style="display:none">
+                <span class="upload-icon">▷</span>
+                <b>Adicionar vídeo guia</b>
+                <small id="video-label">Opcional • MP4/MOV (Movimento / Câmera)</small>
+                <button type="button" class="btn-subaction" id="btn-browse-video" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Vídeo</button>
+              </div>
+            </div>
+
+            <!-- Buttons Group -->
+            <div class="queue-controls-bar">
+              <button type="button" class="btn-subaction" id="btn-add-queue" title="Adiciona à fila de geração">
+                <span>＋ Adicionar à Fila</span>
+              </button>
+
+              <button type="button" class="generate locked" id="btn-start-queue" title="Aguardando workflow carregar para liberar...">
+                <span id="generate-btn-text">✦　Iniciar Fila de Geração　→</span>
+              </button>
+
+              <button type="button" class="btn-subaction" id="btn-pause-queue" disabled title="Pausar execução da fila">
+                <span>⏸ Pausar</span>
+              </button>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+              <button type="button" class="btn-task-action" id="btn-clear-queue">Limpar Concluídas</button>
+            </div>
+
+            <!-- Live Progress Bar -->
+            <div class="progress" id="progress">
+              <span id="progressBar"></span>
+            </div>
+            <div id="progress-status-text" class="progress-status">Pronto para iniciar</div>
+          </div>
+
+          <!-- Right Panel: Video Preview Player -->
+          <div class="panel">
+            <div class="result-head">
+              <h3>✦ Preview & Saída de Vídeo</h3>
+              <span class="check" id="preview-check">✓</span>
+            </div>
+
+            <div class="video-frame" id="videoFrame">
+              <!-- Video Element (Shown when video is loaded) -->
+              <video id="video-player" class="video-player-element" loop playsinline style="display:none;"></video>
+
+              <!-- Video Placeholder (Shown when idle) -->
+              <div class="video-placeholder-content" id="video-placeholder">
+                <button class="play" id="btn-play-placeholder">▶</button>
+                <b id="placeholder-title">Nenhum vídeo gerado ainda</b>
+                <small id="placeholder-sub">Quando a IA finalizar na nuvem, o vídeo será baixado e exibido aqui automaticamente.</small>
+              </div>
+
+              <!-- Custom Video Overlay Bar -->
+              <div class="video-controls" id="video-controls-bar">
+                <button type="button" class="ctrl-icon-btn" id="player-btn-toggle" title="Play / Pause">▶</button>
+                <span id="player-time-display">0:00 / 0:15</span>
+                <div class="video-progress-container" id="player-progress-container" title="Clique para avançar/voltar">
+                  <div class="video-progress-fill" id="player-progress-fill"></div>
+                </div>
+                <button type="button" class="ctrl-icon-btn" id="player-btn-mute" title="Ativar/Desativar Som">🔇 Mudo</button>
+                <span id="player-file-info">Aguardando geração</span>
+              </div>
+            </div>
+
+            <div class="video-actions">
+              <button type="button" id="btn-force-grab-video" title="Se a IA já gerou o vídeo no ComfyUI, força o download imediato e cancela o Sleep Node" style="background:#701a75;border-color:#a21caf;color:#fdf4ff;">📥　Forçar Captura</button>
+              <button type="button" id="btn-cancel-cloud-task" title="Cancela imediatamente a tarefa na nuvem para economizar créditos" style="background:#450a0a;border-color:#991b1b;color:#fecaca;">🛑　Cancelar Tarefa Nuvem</button>
+              <button type="button" id="btn-download-video">⤓　Baixar Novamente</button>
+              <button type="button" id="btn-open-folder">📁　Abrir Pasta Local</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Panel: Execution Queue & Recent Videos -->
+        <div class="panel history">
+          <div class="history-head">
+            <h3>◷ Fileira de Execução & Vídeos Recentes</h3>
+            <span class="nav-badge" id="queue-summary">0 tarefas na fila</span>
+          </div>
+
+          <div class="queue-items-container" id="queue-items-container">
+            <div class="empty-state">
+              <p>Nenhuma tarefa na fileira.</p>
+              <span>Selecione a foto e o vídeo guia acima e clique em "Adicionar à Fila" para iniciar o processamento em lote.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="faceswap-tab">
+        <div class="layout">
+          <!-- Left Panel -->
+          <div class="panel">
+            <div class="panel-title">
+              <span class="spark">🎭</span>
+              <span>Face Swap Ultrarrealista (Klein 9B)</span>
+            </div>
+            <p class="sub">Troca o rosto da modelo preservando expressões, iluminação e anatomia natural.</p>
+
+            <!-- Barra de Gestão de Modelo Fixa / Presets -->
+            <div class="model-fixed-bar">
+              <div class="model-preset-controls">
+                <span style="font-size:12px;font-weight:700;color:#c7b4e4;display:flex;align-items:center;gap:6px;">
+                  <span>👤</span> Modelo:
+                </span>
+                <select id="faceswap-model-preset" class="model-select">
+                  <option value="">-- Selecionar Modelo Salva --</option>
+                </select>
+                <button type="button" class="btn-subaction-sm" id="btn-save-fixed-model" title="Salvar rosto atual como modelo reutilizável">
+                  💾 Salvar
+                </button>
+                <button type="button" class="btn-subaction-sm" id="btn-toggle-fixed-face" title="Fixar rosto selecionado para todas as próximas gerações">
+                  🔒 Fixar
+                </button>
+                <button type="button" class="btn-subaction-sm danger" id="btn-delete-fixed-model" title="Excluir modelo selecionada">
+                  🗑️
+                </button>
+              </div>
+              <div id="faceswap-fixed-badge" class="fixed-badge">
+                <span class="badge-lock" id="faceswap-badge-icon">🔓</span>
+                <span id="faceswap-fixed-badge-text">Nenhum rosto fixado (Use foto avulsa ou fixe uma modelo)</span>
+              </div>
+            </div>
+
+            <div class="prompt-wrap">
+              <input type="text" id="faceswap-task-name" placeholder="Nome do lote / pasta (Ex: Ensaio_Praia_FaceSwap)...">
+            </div>
+
+            <div class="input-grid">
+              <!-- Upload Rosto Referência (Node 23) -->
+              <div class="upload" id="drop-faceswap-face">
+                <input type="hidden" id="faceswap-face-path">
+                <input type="file" id="file-faceswap-face" accept="image/*" style="display:none">
+                <span class="upload-icon">📸</span>
+                <b>1. Rosto da Sua Modelo</b>
+                <small id="faceswap-face-label">Referência facial nítida (Node #23)</small>
+                <img class="preview-thumb" id="faceswapFaceThumb" alt="Preview Rosto">
+                <button type="button" class="btn-subaction" id="btn-browse-faceswap-face" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+
+              <!-- Upload Corpo / Imagens de Destino (Node 17) com suporte a 50+ fotos em lote -->
+              <div class="upload" id="drop-faceswap-target">
+                <input type="hidden" id="faceswap-target-path">
+                <input type="file" id="file-faceswap-target" accept="image/*" multiple style="display:none">
+                <span class="upload-icon">🧍‍♀️</span>
+                <b>2. Imagens de Destino (1 ou Lote)</b>
+                <small id="faceswap-target-label">Selecione 1 ou até 50+ fotos de poses</small>
+                <div id="faceswap-target-counter" class="target-counter-badge" style="display:none;">
+                  <span id="faceswap-target-count-text">0 imagens selecionadas</span>
+                </div>
+                <img class="preview-thumb" id="faceswapTargetThumb" alt="Preview Destino">
+                <div style="display:flex;gap:6px;margin-top:6px;justify-content:center;">
+                  <button type="button" class="btn-subaction" id="btn-browse-faceswap-target" style="padding:6px 14px;font-size:11px;">Procurar Fotos (Lote)</button>
+                  <button type="button" class="btn-subaction danger" id="btn-clear-faceswap-targets" style="padding:6px 10px;font-size:11px;display:none;">Limpar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Faixa de Previews dos Alvos Selecionados -->
+            <div id="faceswap-targets-preview-strip" class="targets-preview-strip" style="display:none;">
+              <div class="targets-strip-header">
+                <span id="faceswap-strip-label">Fotos selecionadas para o Swap:</span>
+                <span id="faceswap-strip-count" style="color:#c084fc;">0</span>
+              </div>
+              <div id="faceswap-strip-thumbs" class="targets-strip-thumbs"></div>
+            </div>
+
+            <!-- Botões de Ação e Fila -->
+            <div class="queue-controls-bar" style="margin-top:14px;">
+              <button type="button" class="btn-subaction" id="btn-add-faceswap-queue" title="Adiciona o rosto e fotos de destino à fila">
+                <span>＋ Adicionar à Fila</span>
+              </button>
+              <button type="button" class="generate" id="btn-start-faceswap-queue" title="Processa sequencialmente as fotos de destino com o rosto da modelo">
+                <span id="faceswap-btn-text">✦　Iniciar Fila de Face Swap　→</span>
+              </button>
+              <button type="button" class="btn-subaction" id="btn-pause-faceswap-queue" disabled title="Pausar execução da fila de Face Swap">
+                <span>⏸ Pausar</span>
+              </button>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+              <button type="button" class="btn-task-action" id="btn-clear-faceswap-queue">Limpar Concluídas</button>
+            </div>
+
+            <div class="progress" id="faceswap-progress" style="margin-top:12px;">
+              <span id="faceswap-progressBar"></span>
+            </div>
+            <div id="faceswap-status-text" class="progress-status">Pronto para iniciar Face Swap</div>
+          </div>
+
+          <!-- Right Panel: Preview -->
+          <div class="panel">
+            <div class="result-head">
+              <h3>✦ Preview do Face Swap</h3>
+              <span class="check" id="faceswap-check">✓</span>
+            </div>
+
+            <div class="image-preview-frame" id="faceswap-preview-frame">
+              <img id="faceswap-preview-img" class="preview-img-element" style="display:none;" alt="Resultado Face Swap">
+              <div class="video-placeholder-content" id="faceswap-placeholder">
+                <span style="font-size:36px;opacity:0.6;">🎭</span>
+                <b>Nenhum swap gerado ainda</b>
+                <small>Fixe o rosto e adicione fotos de destino para gerar.</small>
+              </div>
+            </div>
+
+            <div class="video-actions">
+              <button type="button" id="btn-download-faceswap" disabled>⤓　Baixar Imagem</button>
+              <button type="button" id="btn-open-folder-faceswap">📁　Abrir Pasta Local</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Panel: Execution Queue & Swapped Images -->
+        <div class="panel history" style="margin-top:20px;">
+          <div class="history-head">
+            <h3>🎭 Fileira de Face Swap & Imagens Processadas</h3>
+            <span class="nav-badge" id="faceswap-queue-summary">0 tarefas na fila</span>
+          </div>
+
+          <div class="queue-items-container" id="faceswap-queue-items-container">
+            <div class="empty-state">
+              <p>Nenhuma tarefa de Face Swap na fileira.</p>
+              <span>Fixe ou selecione o rosto da modelo, escolha até 50+ fotos de destino e clique em "Adicionar à Fila" ou "Iniciar Fila".</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="upscale-tab">
+        <div class="layout">
+          <!-- Left Panel -->
+          <div class="panel">
+            <div class="panel-title">
+              <span class="spark">🔍</span>
+              <span>Ultra-Detalhamento & 4K Cinema Upscale</span>
+            </div>
+            <p class="sub">Eleva imagens para 4K adicionando micro-texturas na pele, olhos, cabelos e iluminação.</p>
+
+            <div class="prompt-wrap">
+              <input type="text" id="upscale-task-name" placeholder="Identificador da imagem (Ex: Modelo_Upscale_4K)...">
+            </div>
+
+            <div class="input-grid" style="grid-template-columns: 1fr;">
+              <!-- Upload Foto da Modelo (Node 314) -->
+              <div class="upload" id="drop-upscale-image">
+                <input type="hidden" id="upscale-image-path">
+                <input type="file" id="file-upscale-image" accept="image/*" style="display:none">
+                <span class="upload-icon">🖼️</span>
+                <b>Foto da Modelo para Upscale</b>
+                <small id="upscale-image-label">Selecione qualquer foto para detalhamento 4K (Node #314)</small>
+                <img class="preview-thumb" id="upscaleThumb" alt="Preview Upscale">
+                <button type="button" class="btn-subaction" id="btn-browse-upscale-image" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+            </div>
+
+            <!-- Controles de Denoise (Nós 291 e 294) -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Denoise Facial / Rosto (Node #291)</span>
+                <span class="slider-value" id="val-denoise-face">0.08</span>
+              </div>
+              <input type="range" id="range-denoise-face" class="styled-range" min="0.01" max="0.30" step="0.01" value="0.08">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Denoise Fundo / Background (Node #294)</span>
+                <span class="slider-value" id="val-denoise-bg">0.15</span>
+              </div>
+              <input type="range" id="range-denoise-bg" class="styled-range" min="0.05" max="0.40" step="0.01" value="0.15">
+            </div>
+
+            <div class="queue-controls-bar" style="margin-top:14px;">
+              <button type="button" class="generate" id="btn-start-upscale" style="width:100%;">
+                <span>✦　Iniciar Upscale 4K Cinema　→</span>
+              </button>
+            </div>
+
+            <div class="progress" id="upscale-progress" style="margin-top:12px;">
+              <span id="upscale-progressBar"></span>
+            </div>
+            <div id="upscale-status-text" class="progress-status">Pronto para iniciar Upscale 4K</div>
+          </div>
+
+          <!-- Right Panel: Preview -->
+          <div class="panel">
+            <div class="result-head">
+              <h3>✦ Imagem Final 4K Detalhada</h3>
+              <span class="check" id="upscale-check">✓</span>
+            </div>
+
+            <div class="image-preview-frame" id="upscale-preview-frame">
+              <img id="upscale-preview-img" class="preview-img-element" style="display:none;" alt="Resultado 4K">
+              <div class="video-placeholder-content" id="upscale-placeholder">
+                <span style="font-size:36px;opacity:0.6;">💎</span>
+                <b>Nenhuma imagem 4K gerada ainda</b>
+                <small>Selecione a imagem e clique em "Iniciar Upscale 4K Cinema".</small>
+              </div>
+            </div>
+
+            <div class="video-actions">
+              <button type="button" id="btn-download-upscale" disabled>⤓　Baixar Imagem 4K</button>
+              <button type="button" id="btn-open-folder-upscale">📁　Abrir Pasta Local</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="clothes-tab">
+        <div class="layout">
+          <!-- Left Panel -->
+          <div class="panel">
+            <div class="panel-title">
+              <span class="spark">👗</span>
+              <span>Trocador de Roupa Inteligente</span>
+            </div>
+            <p class="sub">Substitui o look da sua modelo por uma peça nova mantendo pose, iluminação e anatomia.</p>
+
+            <div class="prompt-wrap">
+              <input type="text" id="clothes-task-name" placeholder="Identificador (Ex: Look_Vestido_Vermelho)...">
+            </div>
+
+            <!-- Trava / Fixação de Modelo na Troca de Roupa -->
+            <div id="clothes-fixed-badge" class="fixed-badge" style="margin-bottom:12px;cursor:pointer;" title="Modelo fixada para troca de look">
+              <span class="badge-lock" id="clothes-badge-icon">🔓</span>
+              <span id="clothes-fixed-badge-text">Nenhuma modelo fixada (Use foto avulsa ou fixe uma modelo no Face Swap)</span>
+            </div>
+
+            <div class="input-grid">
+              <!-- Upload Folha do Personagem (Node 339) -->
+              <div class="upload" id="drop-clothes-model">
+                <input type="hidden" id="clothes-model-path">
+                <input type="file" id="file-clothes-model" accept="image/*" style="display:none">
+                <span class="upload-icon">🧍‍♀️</span>
+                <b>1. Foto / Folha da Modelo</b>
+                <small id="clothes-model-label">Foto original da modelo (Node #339)</small>
+                <img class="preview-thumb" id="clothesModelThumb" alt="Preview Modelo">
+                <button type="button" class="btn-subaction" id="btn-browse-clothes-model" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+
+              <!-- Upload Roupa Nova (Node 341) -->
+              <div class="upload" id="drop-clothes-piece">
+                <input type="hidden" id="clothes-piece-path">
+                <input type="file" id="file-clothes-piece" accept="image/*" style="display:none">
+                <span class="upload-icon">👚</span>
+                <b>2. Foto da Nova Roupa</b>
+                <small id="clothes-piece-label">Foto da peça de vestuário (Node #341)</small>
+                <img class="preview-thumb" id="clothesPieceThumb" alt="Preview Roupa">
+                <button type="button" class="btn-subaction" id="btn-browse-clothes-piece" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+            </div>
+
+            <!-- Prompt de Detalhes da Roupa (Node 348) -->
+            <div style="margin-top:12px;">
+              <label style="font-size:12px;color:#a38bc6;margin-bottom:4px;display:block;">Instruções ou Estilo da Roupa (Node #348):</label>
+              <textarea id="clothes-prompt-text" class="prompt-textarea" placeholder="Instruções de transferência de roupa..."></textarea>
+            </div>
+
+            <div class="queue-controls-bar" style="margin-top:14px;">
+              <button type="button" class="generate" id="btn-start-clothes" style="width:100%;">
+                <span>✦　Trocar Roupa na Nuvem　→</span>
+              </button>
+            </div>
+
+            <div class="progress" id="clothes-progress" style="margin-top:12px;">
+              <span id="clothes-progressBar"></span>
+            </div>
+            <div id="clothes-status-text" class="progress-status">Pronto para trocar de roupa</div>
+          </div>
+
+          <!-- Right Panel: Preview -->
+          <div class="panel">
+            <div class="result-head">
+              <h3>✦ Imagem com Novo Look</h3>
+              <span class="check" id="clothes-check">✓</span>
+            </div>
+
+            <div class="image-preview-frame" id="clothes-preview-frame">
+              <img id="clothes-preview-img" class="preview-img-element" style="display:none;" alt="Resultado Roupa">
+              <div class="video-placeholder-content" id="clothes-placeholder">
+                <span style="font-size:36px;opacity:0.6;">👗</span>
+                <b>Nenhum look gerado ainda</b>
+                <small>Selecione a modelo e a roupa nova e clique em "Trocar Roupa".</small>
+              </div>
+            </div>
+
+            <div class="video-actions">
+              <button type="button" id="btn-download-clothes" disabled>⤓　Baixar Imagem</button>
+              <button type="button" id="btn-open-folder-clothes">📁　Abrir Pasta Local</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="carousel-tab">
+        <div class="layout">
+          <!-- Left Panel -->
+          <div class="panel">
+            <div class="panel-title">
+              <span class="spark">📸</span>
+              <span>Gerador de Carrossel Multi-Pose</span>
+            </div>
+            <p class="sub">Gera variações consistentes de poses e expressões da sua modelo para Instagram & TikTok.</p>
+
+            <div class="prompt-wrap">
+              <input type="text" id="carousel-task-name" placeholder="Identificador (Ex: Carrossel_Sessao_Outono)...">
+            </div>
+
+            <!-- Trava / Fixação de Modelo no Carrossel -->
+            <div id="carousel-fixed-badge" class="fixed-badge" style="margin-bottom:12px;cursor:pointer;" title="Modelo fixada para carrossel">
+              <span class="badge-lock" id="carousel-badge-icon">🔓</span>
+              <span id="carousel-fixed-badge-text">Nenhuma modelo fixada (Use foto avulsa ou fixe uma modelo no Face Swap)</span>
+            </div>
+
+            <div class="input-grid" style="grid-template-columns: 1fr;">
+              <!-- Upload Foto Principal (Node 393) -->
+              <div class="upload" id="drop-carousel-main">
+                <input type="hidden" id="carousel-main-path">
+                <input type="file" id="file-carousel-main" accept="image/*" style="display:none">
+                <span class="upload-icon">📸</span>
+                <b>Foto Principal da Modelo</b>
+                <small id="carousel-main-label">Foto de referência para as poses (Node #393)</small>
+                <img class="preview-thumb" id="carouselMainThumb" alt="Preview Principal">
+                <button type="button" class="btn-subaction" id="btn-browse-carousel-main" style="margin-top:6px;padding:6px 14px;font-size:11px;">Procurar Foto</button>
+              </div>
+            </div>
+
+            <!-- Poses / Expressões (1 por linha) (Node 391) -->
+            <div style="margin-top:12px;">
+              <label style="font-size:12px;color:#a38bc6;margin-bottom:4px;display:block;">Poses & Expressões (1 por linha - Node #391):</label>
+              <textarea id="carousel-poses-text" class="prompt-textarea" style="min-height:110px;" placeholder="sitting upright with a straight back, soft smile
+leaning back relaxed against the backrest, confident smile
+body turned slightly to the right, hand in hair
+leaning forward with elbows on knees, warm smile..."></textarea>
+            </div>
+
+            <div class="queue-controls-bar" style="margin-top:14px;display:flex;gap:10px;">
+              <button type="button" class="generate" id="btn-start-carousel" style="flex:1;">
+                <span>✦　Gerar Carrossel de Poses　→</span>
+              </button>
+              <button type="button" class="btn-cancel" id="btn-cancel-carousel" style="display:none;background:#3b1219;border:1px solid #f43f5e;color:#fca5a5;padding:0 18px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;" title="Cancelar Geração Atual e Salvar Créditos">
+                <span>🛑 Cancelar</span>
+              </button>
+            </div>
+
+            <div class="progress" id="carousel-progress" style="margin-top:12px;">
+              <span id="carousel-progressBar"></span>
+            </div>
+            <div id="carousel-status-text" class="progress-status">Pronto para gerar carrossel</div>
+          </div>
+
+          <!-- Right Panel: Preview & Gallery -->
+          <div class="panel">
+            <div class="result-head">
+              <h3>✦ Imagem Ativa do Carrossel</h3>
+              <span class="check" id="carousel-check">✓</span>
+            </div>
+
+            <div class="image-preview-frame" id="carousel-preview-frame">
+              <img id="carousel-preview-img" class="preview-img-element" style="display:none;" alt="Resultado Carrossel">
+              <div class="video-placeholder-content" id="carousel-placeholder">
+                <span style="font-size:36px;opacity:0.6;">📸</span>
+                <b>Nenhum carrossel gerado ainda</b>
+                <small>Selecione a foto principal e a lista de poses e clique em "Gerar Carrossel".</small>
+              </div>
+            </div>
+
+            <div class="carousel-gallery-grid" id="carousel-gallery-container" style="display:none;">
+              <!-- Miniaturas geradas no carrossel -->
+            </div>
+
+            <div class="video-actions">
+              <button type="button" id="btn-download-carousel" disabled>⤓　Baixar Imagem Ativa</button>
+              <button type="button" id="btn-download-all-carousel" style="display:none;background:#311b58;border:1px solid #7c3aed;color:#e2d9f3;" title="Baixar todas as poses geradas">⤓　Baixar Todas as Poses (<span id="carousel-count-badge">0</span>)</button>
+              <button type="button" id="btn-open-folder-carousel">📁　Abrir Pasta Local</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: PLATAFORMA WEB (RunningHub Multi-Tab Webviews) -->
+      <section class="tab-pane" id="platform-tab">
+        <div class="panel" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 100px);">
+          <!-- Subtab Navigation Bar -->
+          <div class="platform-tabs-header">
+            <div class="platform-tab-buttons" id="platform-tab-buttons">
+              <button type="button" class="platform-subtab-btn active" data-target-wv="wv-video" data-module="video">
+                <span class="subtab-ico">🎬</span>
+                <span class="subtab-title">Vídeo Engine</span>
+                <span class="subtab-status-dot online" id="dot-wv-video"></span>
+              </button>
+              <button type="button" class="platform-subtab-btn" data-target-wv="wv-faceswap" data-module="face_swap">
+                <span class="subtab-ico">🎭</span>
+                <span class="subtab-title">Face Swap</span>
+                <span class="subtab-status-dot" id="dot-wv-faceswap"></span>
+              </button>
+              <button type="button" class="platform-subtab-btn" data-target-wv="wv-upscale" data-module="upscale">
+                <span class="subtab-ico">🔍</span>
+                <span class="subtab-title">4K Upscale</span>
+                <span class="subtab-status-dot" id="dot-wv-upscale"></span>
+              </button>
+              <button type="button" class="platform-subtab-btn" data-target-wv="wv-clothes" data-module="clothes_swap">
+                <span class="subtab-ico">👗</span>
+                <span class="subtab-title">Troca Roupa</span>
+                <span class="subtab-status-dot" id="dot-wv-clothes"></span>
+              </button>
+              <button type="button" class="platform-subtab-btn" data-target-wv="wv-carousel" data-module="carousel">
+                <span class="subtab-ico">📸</span>
+                <span class="subtab-title">Carrossel</span>
+                <span class="subtab-status-dot" id="dot-wv-carousel"></span>
+              </button>
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:12px;">
+              <span id="active-wv-badge" style="font-size:11px;color:#a894c7;background:#1e1035;padding:3px 8px;border-radius:6px;border:1px solid #361b5c;">Aba: Vídeo Engine</span>
+            </div>
+          </div>
+
+          <!-- Browser Controls Toolbar -->
+          <div class="platform-toolbar" style="border-radius:0;">
+            <div class="toolbar-left">
+              <button type="button" class="btn-toolbar" id="btn-switch-account" style="border-color:#ef4444;color:#fca5a5;font-weight:600;" title="Desconecta a conta atual da RunningHub para entrar com outra conta">🚪 Trocar de Conta</button>
+              <button type="button" class="btn-toolbar" id="btn-open-workflow-tab">🔄 Recarregar Sessão</button>
+              <button type="button" class="btn-toolbar" id="btn-dismiss-popups-tab">✕ Fechar Popups</button>
+            </div>
+            <div class="toolbar-right">
+              <span id="shield-status-indicator" style="font-size:11px;color:#34d399;background:rgba(16,185,129,0.12);padding:4px 10px;border-radius:6px;border:1px solid #059669;font-weight:600;">🛡️ Modo Seguro Ativo (Workflows Protegidos)</span>
+              <!-- Ferramentas de desenvolvedor ocultas do cliente -->
+              <div id="admin-dev-tools" style="display:none;align-items:center;gap:6px;">
+                <button type="button" class="btn-icon" id="wv-back" title="Voltar">◀</button>
+                <button type="button" class="btn-icon" id="wv-forward" title="Avançar">▶</button>
+                <button type="button" class="btn-icon" id="wv-reload" title="Recarregar">🔄</button>
+                <input type="text" id="wv-url-bar" class="url-input" style="width:160px;" placeholder="URL">
+                <button type="button" class="btn-toolbar" id="wv-go">Ir</button>
+                <button type="button" class="btn-toolbar" id="btn-inspect-webview">DevTools</button>
+                <button type="button" class="btn-toolbar" id="btn-probe-dom">DOM</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-Webview Deck -->
+          <div class="platform-view-wrapper" style="position:relative;flex:1;height:100%;">
+            <!-- 1. Video Webview -->
+            <webview id="wv-video" 
+                     src="https://www.runninghub.ai/pt-br/workflow/2123548590904102913" 
+                     partition="persist:runninghub" 
+                     allowpopups
+                     class="runninghub-webview active"></webview>
+
+            <!-- 2. Face Swap Webview -->
+            <webview id="wv-faceswap" 
+                     src="https://www.runninghub.ai/pt-br/workflow/2118471777898024961" 
+                     partition="persist:runninghub" 
+                     allowpopups
+                     class="runninghub-webview"></webview>
+
+            <!-- 3. Upscale Webview -->
+            <webview id="wv-upscale" 
+                     src="https://www.runninghub.ai/pt-br/workflow/2118471777898024961" 
+                     partition="persist:runninghub" 
+                     allowpopups
+                     class="runninghub-webview"></webview>
+
+            <!-- 4. Clothes Swap Webview -->
+            <webview id="wv-clothes" 
+                     src="https://www.runninghub.ai/pt-br/workflow/2118471777898024961" 
+                     partition="persist:runninghub" 
+                     allowpopups
+                     class="runninghub-webview"></webview>
+
+            <!-- 5. Carousel Webview -->
+            <webview id="wv-carousel" 
+                     src="https://www.runninghub.ai/pt-br/workflow/2118471777898024961" 
+                     partition="persist:runninghub" 
+                     allowpopups
+                     class="runninghub-webview"></webview>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="history-tab">
+        <div class="panel">
+          <div class="panel-title">
+            <span class="spark">◷</span>
+            <span>Histórico de Vídeos Gerados</span>
+          </div>
+          <p class="sub">Todos os vídeos finalizados e tarefas registradas durante a sessão.</p>
+
+          <div class="queue-items-container" id="history-full-container">
+            <div class="empty-state">
+              <p>O histórico está vazio.</p>
+              <span>Seus vídeos gerados pela fileira ficarão salvos aqui.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="inspector-tab">
+        <div class="panel inspector-card">
+          <div class="panel-title" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="spark">🔬</span>
+              <span>Mapeador de Elementos DOM da Plataforma</span>
+            </div>
+            <button type="button" class="btn-toolbar" id="btn-run-full-probe" style="border-color:#8b27ff;color:#e1c4ff;">Escanear Página Atual</button>
+          </div>
+          <p class="sub" style="margin-left:0;">Detecta automaticamente botões de execução (tiers), nós ComfyUI, cancelamento e saída de vídeo.</p>
+
+          <div class="inspector-metric-grid">
+            <div class="inspector-metric">
+              <span class="metric-title">Inputs de Arquivo Detectados:</span>
+              <span class="metric-value" id="metric-file-inputs">0</span>
+            </div>
+            <div class="inspector-metric">
+              <span class="metric-title">Botão de Cancelar / Interrupt:</span>
+              <span class="metric-value" id="metric-cancel-btn">Não Detectado</span>
+            </div>
+            <div class="inspector-metric">
+              <span class="metric-title">Botão de Iniciar (Queue Tiers):</span>
+              <span class="metric-value" id="metric-queue-btn">Não Detectado</span>
+            </div>
+            <div class="inspector-metric">
+              <span class="metric-title">Elemento de Vídeo Final:</span>
+              <span class="metric-value" id="metric-video-out">Não Detectado</span>
+            </div>
+          </div>
+
+          <div class="dom-log-box">
+            <h4>Log Detalhado do DOM:</h4>
+            <pre id="dom-log-output">Clique em "Escanear Página Atual" para inspecionar os nós do workflow aberto no Webview...</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-pane" id="settings-tab">
+        <div class="panel settings-panel">
+          <div class="panel-title">
+            <span class="spark">⚙</span>
+            <span>Configurações do Estúdio</span>
+          </div>
+          <p class="sub">Ajuste os parâmetros de automação, planos e diretórios locais.</p>
+
+          <div class="setting-form-group">
+            <label>Link / URL do Workflow de VÍDEO na RunningHub:</label>
+            <input type="text" id="setting-workflow-url" class="setting-input" placeholder="https://www.runninghub.ai/pt-br/workflow/2123548590904102913">
+            <span class="setting-hint">Workflow do gerador de vídeos (AnimateDiff / VideoCombine). Aberto na aba 'Vídeo Engine'.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label>Link / URL do Workflow da SUÍTE 4-EM-1 na RunningHub:</label>
+            <input type="text" id="setting-suite-workflow-url" class="setting-input" placeholder="https://www.runninghub.ai/pt-br/workflow/2118471777898024961">
+            <span class="setting-hint">Workflow mestre da Suíte (Face Swap, 4K Upscale, Troca de Roupa e Carrossel). Aberto nas abas da Suíte.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label>RunningHub API Key (Chave de Acesso para Upload em Nuvem):</label>
+            <input type="password" id="setting-api-key" class="setting-input" placeholder="Cole sua API Key do RunningHub (ex: 8a7c2b...)">
+            <span class="setting-hint">Necessária para o upload direto de imagens e vídeos no servidor da RunningHub (/task/openapi/upload). Você encontra no menu lateral (RH OpenAPI) ou no seu perfil na plataforma. O app também tenta auto-detectar da sessão logada.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label>Plano de GPU Padrão para Execução (Botão de Queue):</label>
+            <select id="setting-gpu-tier" class="setting-input">
+              <option value="Lite/Plus" selected>⚡ Lite / Plus (Recomendado - Plano Grátis)</option>
+              <option value="Ultra-6000D">🔥 Ultra-6000D (Assinante / Velocidade Máxima)</option>
+              <option value="Lite/Standard">🌱 Lite / Standard (Econômico)</option>
+            </select>
+            <span class="setting-hint">Define qual botão de execução ("Executar") será acionado automaticamente na plataforma.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label>Tempo de Carregamento Inicial do Workflow (Segundos):</label>
+            <div class="input-with-button">
+              <input type="number" id="setting-init-delay" class="setting-input" value="270" min="60" max="600">
+            </div>
+            <span class="setting-hint">Tempo máximo de tolerância caso o Live Watcher não consiga ler o canvas de imediato.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label>Pasta de Destino dos Vídeos Gerados:</label>
+            <div class="input-with-button">
+              <input type="text" id="setting-output-dir" class="setting-input" readonly>
+              <button type="button" class="btn-toolbar" id="btn-browse-output-dir">Alterar Pasta</button>
+            </div>
+            <span class="setting-hint">Os vídeos finalizados pela fila serão salvos automaticamente nesta pasta local.</span>
+          </div>
+
+          <div class="setting-form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="setting-auto-download" checked>
+              <span>Baixar vídeos automaticamente assim que a geração for concluída</span>
+            </label>
+          </div>
+
+          <div style="margin-top:24px;display:flex;align-items:center;gap:16px;">
+            <button type="button" class="generate" id="btn-save-settings" style="width:240px;padding:12px;">Salvar Configurações</button>
+          </div>
+
+          <div class="setting-form-group" style="margin-top:24px;padding:18px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.3);border-radius:10px;">
+            <label style="color:#d8b4fe;font-weight:700;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+              <span>🚀 Atualizações do Sistema (GitHub Auto-Updater):</span>
+              <span class="version-tag" id="settings-app-version">v1.0.0</span>
+            </label>
+            <p style="font-size:12px;color:#a38bc6;margin-bottom:12px;">O sistema verifica atualizações automaticamente via GitHub. Você também pode forçar uma verificação agora ou simular para testar a interface.</p>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button type="button" class="btn-toolbar" id="btn-check-updates" style="background:#7c3aed;border-color:#9b43ff;color:#fff;font-weight:600;padding:9px 16px;">🔄 Verificar Atualizações Agora</button>
+              <button type="button" class="btn-toolbar" id="btn-simulate-update" style="background:#23133d;border-color:#53238d;color:#d8b4fe;padding:9px 14px;font-size:12px;">Testar Notificação</button>
+            </div>
+            <div id="settings-update-status" style="margin-top:10px;font-size:12px;color:#c084fc;"></div>
+          </div>
+
+          <div class="setting-form-group" style="margin-top:32px;padding:18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:10px;">
+            <label style="color:#fca5a5;font-weight:600;font-size:14px;margin-bottom:6px;display:block;">Trocar Conta da RunningHub (Limpar Sessão e Créditos):</label>
+            <p style="font-size:12px;color:#a38bc6;margin-bottom:12px;">Se os créditos da sua conta atual acabaram, clique abaixo para deslogar da RunningHub. A sessão será limpa e a tela de login abrirá para você entrar com sua outra conta.</p>
+            <button type="button" class="btn-toolbar" id="btn-settings-switch-account" style="background:#ef4444;border-color:#ef4444;color:#fff;font-weight:600;padding:10px 20px;">🚪 Desconectar e Trocar de Conta</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: FRAME EXTRACTOR (Ferramenta Web Externa) -->
+      <section class="tab-pane" id="frame-extractor-tab">
+        <div class="panel" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 100px);">
+          <!-- Top Control Bar -->
+          <div class="platform-toolbar" style="border-radius:0;">
+            <div class="toolbar-left">
+              <button type="button" class="btn-icon" id="fe-back" title="Voltar">◀</button>
+              <button type="button" class="btn-icon" id="fe-forward" title="Avançar">▶</button>
+              <button type="button" class="btn-icon" id="fe-reload" title="Recarregar Frame Extractor">🔄</button>
+              <input type="text" id="fe-url-bar" class="url-input" value="https://frame-extractor.com/en" readonly style="color:#a894c7;background:rgba(15,8,30,0.6);max-width:320px;">
+              <button type="button" class="btn-toolbar" id="fe-reset" title="Voltar para a página inicial do Frame Extractor">Página Inicial</button>
+            </div>
+            <div class="toolbar-right">
+              <span style="font-size:12px;color:#a894c7;">🎞️ Extração de frames sem precisar abrir abas externas</span>
+            </div>
+          </div>
+
+          <!-- Webview Container -->
+          <div style="flex:1;position:relative;height:100%;background:#0b0616;">
+            <webview id="wv-frame-extractor"
+                     src="https://frame-extractor.com/en"
+                     partition="persist:frame-extractor"
+                     allowpopups
+                     style="width:100%;height:100%;border:none;"></webview>
+          </div>
+        </div>
+      </section>
+
+      </main>
+  </div>
+
+  <!-- MODAL DE ATIVAÇÃO DE LICENÇA (FIRST-USE HWID LOCK) -->
+  <div id="activation-modal" style="display:none;position:fixed;inset:0;background:rgba(7,4,12,0.96);z-index:9999999;backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;">
+    <div style="width:520px;max-width:92vw;background:linear-gradient(145deg, #160d29, #0e071c);border:1px solid #7c3aed;border-radius:20px;padding:36px;box-shadow:0 0 50px rgba(124,58,237,0.35);text-align:center;position:relative;">
+      <div style="margin-bottom:14px;">
+        <img src="assets/logo.png" width="64" height="64" style="border-radius:14px;box-shadow:0 0 25px rgba(168,85,247,0.5);object-fit:cover;" alt="Velvy Logo">
+      </div>
+      <h2 style="font-size:24px;color:#fff;margin:0 0 6px 0;letter-spacing:1px;font-weight:700;">VELVY STUDIO</h2>
+      <p style="font-size:13px;color:#a894c7;margin:0 0 24px 0;">Automação de Vídeo, Face Swap, Trocador de Roupa & Carrossel</p>
+
+      <div style="background:#0d061a;border:1px solid #2d184d;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;color:#7c3aed;font-weight:600;letter-spacing:0.5px;">IDENTIFICADOR DA MÁQUINA (HWID)</span>
+          <button type="button" id="btn-copy-hwid" style="background:#261244;border:1px solid #58249c;color:#e2d9f3;border-radius:6px;padding:2px 8px;font-size:10px;cursor:pointer;">Copiar</button>
+        </div>
+        <div id="activation-hwid-text" style="font-family:monospace;font-size:13px;color:#e2d9f3;word-break:break-all;">Carregando...</div>
+      </div>
+
+      <div style="text-align:left;margin-bottom:22px;">
+        <label style="display:block;font-size:12px;color:#a894c7;margin-bottom:8px;font-weight:600;">Chave de Ativação:</label>
+        <input type="text" id="activation-key-input" placeholder="VELVY-XXXX-XXXX-XXXX-XXXX" style="width:100%;background:#090412;border:1px solid #4a2282;border-radius:10px;padding:12px 14px;font-family:monospace;font-size:15px;color:#fff;text-align:center;letter-spacing:2px;outline:none;box-sizing:border-box;">
+      </div>
+
+      <button type="button" id="btn-submit-activation" style="width:100%;background:linear-gradient(135deg, #7c3aed, #9b43ff);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;padding:14px;cursor:pointer;box-shadow:0 0 20px rgba(155,67,255,0.4);transition:all 0.2s;">
+        ✦ Ativar Minha Licença
+      </button>
+
+      <div id="activation-status-msg" style="margin-top:16px;font-size:12px;min-height:18px;color:#a894c7;"></div>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #1f0f38;font-size:11px;color:#6b5293;">
+        Ainda não possui uma chave? Compre no nosso Discord oficial com suporte VIP.
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING BOTTOM UPDATE NOTIFICATION BAR -->
+  <div id="update-notification-bar" class="update-bar" style="display:none;">
+    <div class="update-bar-left">
+      <div class="update-icon-pulse">🚀</div>
+      <div class="update-text-wrap">
+        <div class="update-title">Nova Atualização Disponível! <span id="update-version-tag" class="version-tag">v1.0.1</span></div>
+        <div id="update-notes-text" class="update-notes">Melhorias e novas automações prontas para instalação.</div>
+      </div>
+    </div>
+    <div class="update-bar-actions">
+      <button type="button" id="btn-update-now" class="btn-update-primary">⚡ Atualizar Agora</button>
+      <button type="button" id="btn-update-later" class="btn-update-secondary">Lembrar Depois</button>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN UPDATE PROGRESS OVERLAY (TELA DE CARREGAMENTO PARA QUANDO FOR ATUALIZAR) -->
+  <div id="update-screen-overlay" style="display:none;position:fixed;inset:0;background:rgba(8,4,16,0.96);z-index:99999999;backdrop-filter:blur(20px);align-items:center;justify-content:center;">
+    <div style="width:480px;max-width:90vw;background:linear-gradient(145deg,#150a2a,#0c051a);border:1px solid #7c3aed;border-radius:24px;padding:36px;box-shadow:0 0 60px rgba(124,58,237,0.45);text-align:center;">
+      <div style="margin-bottom:16px;">
+        <img src="assets/logo.png" width="70" height="70" style="border-radius:16px;box-shadow:0 0 30px rgba(155,67,255,0.6);object-fit:cover;" alt="Velvy Logo">
+      </div>
+      <h2 style="font-size:22px;color:#fff;margin:0 0 8px 0;letter-spacing:1px;font-weight:800;">ATUALIZANDO VELVY STUDIO</h2>
+      <p id="update-progress-subtitle" style="font-size:13px;color:#a894c7;margin:0 0 24px 0;">Baixando nova versão do GitHub...</p>
+
+      <!-- Progress bar -->
+      <div style="background:#090412;border:1px solid #3b1b6d;border-radius:20px;height:12px;overflow:hidden;position:relative;margin-bottom:14px;">
+        <div id="update-progress-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#7c3aed,#d946ef,#38bdf8);border-radius:20px;transition:width 0.25s ease;box-shadow:0 0 15px rgba(155,67,255,0.8);"></div>
+      </div>
+
+      <!-- Metrics -->
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#9482b3;font-family:monospace;margin-bottom:20px;">
+        <span id="update-percent-label">0%</span>
+        <span id="update-bytes-label">0 MB / 0 MB</span>
+      </div>
+
+      <div style="font-size:11px;color:#786596;">
+        ⚡ Por favor, não feche o sistema. Ao finalizar o download, a instalação iniciará automaticamente.
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Automation Engine Script -->
+  <script src="renderer.js"></script>
+</body>
+</html>

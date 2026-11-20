@@ -1,0 +1,16 @@
+{
+  "name": "velvy-discord-bot",
+  "version": "1.0.0",
+  "description": "Bot de Vendas, Tickets e Gerador de Chaves de Licença com Bloqueio de HWID para Velvy Studio",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "discord.js": "^14.16.3",
+    "express": "^4.21.1"
+  },
+  "author": "dj & ANON",
+  "license": "ISC"
+}

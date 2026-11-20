@@ -1,0 +1,7 @@
+{
+  "githubOwner": "Joaolucas1111",
+  "githubRepo": "VelvyJustsu",
+  "checkIntervalMinutes": 15,
+  "manifestUrl": "https://raw.githubusercontent.com/Joaolucas1111/VelvyJustsu/main/version.json",
+  "releasesApiUrl": "https://api.github.com/repos/Joaolucas1111/VelvyJustsu/releases/latest"
+}

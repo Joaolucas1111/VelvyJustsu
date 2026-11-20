@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velvy Studio • Painel de Licenças & HWID</title>
+  <style>
+    :root {
+      --bg: #090514;
+      --card-bg: #120a24;
+      --card-border: #2c1652;
+      --primary: #9b43ff;
+      --primary-hover: #b066ff;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f3e8ff;
+      --text-muted: #9482b3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      background: radial-gradient(circle at top right, #1a0b36 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #7c3aed, #d946ef);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 0 20px rgba(155,67,255,0.4);
+    }
+    .brand h1 { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+    .brand p { font-size: 12px; color: var(--text-muted); }
+    
+    .auth-bar { display: flex; align-items: center; gap: 10px; }
+    .auth-bar input {
+      background: #0d061c; border: 1px solid var(--card-border); color: #fff;
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; outline: none;
+    }
+    .btn {
+      background: var(--primary); color: #fff; border: none; padding: 8px 16px;
+      border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(155,67,255,0.4); }
+    .btn-danger { background: #3f141f; color: #fca5a5; border: 1px solid #7f1d1d; }
+    .btn-danger:hover { background: #5a1928; }
+    .btn-copy { background: #23123d; color: #d8b4fe; border: 1px solid #4c2282; padding: 3px 8px; font-size: 11px; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .kpi-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 18px 22px; position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--primary);
+    }
+    .kpi-card.success::before { background: var(--success); }
+    .kpi-card.warning::before { background: var(--warning); }
+    .kpi-card.danger::before { background: var(--danger); }
+    .kpi-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .kpi-val { font-size: 28px; font-weight: 800; margin-top: 6px; }
+
+    /* Actions Panel */
+    .section-box {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 22px; margin-bottom: 30px;
+    }
+    .section-head { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .form-inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 12px; align-items: end; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .form-group input, .form-group select {
+      width: 100%; background: #0d061c; border: 1px solid var(--card-border);
+      color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none;
+    }
+
+    /* Table */
+    .search-bar {
+      width: 100%; background: #0d061c; border: 1px solid var(--card-border);
+      color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 13px;
+      margin-bottom: 16px; outline: none;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th {
+      background: #180c33; padding: 12px 14px; color: var(--text-muted);
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border);
+    }
+    td { padding: 14px; border-bottom: 1px solid rgba(44, 22, 82, 0.4); vertical-align: middle; }
+    tr:hover td { background: rgba(155, 67, 255, 0.04); }
+    
+    .key-badge { font-family: monospace; font-size: 13px; font-weight: 700; color: #e9d5ff; background: #23123d; padding: 4px 8px; border-radius: 6px; border: 1px solid #4a2282; }
+    .hwid-badge { font-family: monospace; font-size: 12px; color: #a5f3fc; background: #082f49; padding: 3px 6px; border-radius: 4px; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;
+    }
+    .status-active { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+    .status-pending { background: #451a03; color: #fcd34d; border: 1px solid #d97706; }
+    .status-revoked { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; }
+    .status-expired { background: #27272a; color: #a1a1aa; border: 1px solid #52525b; }
+
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; background: #1f0f38;
+      border: 1px solid var(--primary); color: #fff; padding: 12px 20px;
+      border-radius: 10px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none; z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <h1>VELVY STUDIO • LICENCIAMENTO</h1>
+          <p>Painel Administrativo de Chaves, HWIDs e Vendas</p>
+        </div>
+      </div>
+      <div class="auth-bar">
+        <input type="password" id="adminSecretInput" placeholder="Senha Mestra (serverSecret)...">
+        <button class="btn" onclick="saveSecret()">Conectar</button>
+      </div>
+    </header>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Total de Chaves</div>
+        <div class="kpi-val" id="kpi-total">0</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-title">Chaves Ativas (Trancadas)</div>
+        <div class="kpi-val" id="kpi-active">0</div>
+      </div>
+      <div class="kpi-card warning">
+        <div class="kpi-title">Aguardando 1º Uso</div>
+        <div class="kpi-val" id="kpi-pending">0</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-title">Revogadas / Expiradas</div>
+        <div class="kpi-val" id="kpi-inactive">0</div>
+      </div>
+    </div>
+
+    <!-- Gerar Chave Rápida -->
+    <div class="section-box">
+      <div class="section-head">
+        <span>✦ Gerar Nova Chave de Ativação</span>
+      </div>
+      <div class="form-inline">
+        <div class="form-group">
+          <label>Validade:</label>
+          <select id="genDays">
+            <option value="30">30 Dias (Mensal Pro)</option>
+            <option value="90">90 Dias (Trimestral)</option>
+            <option value="365">1 Ano (Anual)</option>
+            <option value="-1">Vitalício (Sem expiração)</option>
+            <option value="7">7 Dias (Teste)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome do Plano:</label>
+          <input type="text" id="genPlan" placeholder="Ex: Mensal Pro, VIP...">
+        </div>
+        <div class="form-group">
+          <label>Identificador / Cliente:</label>
+          <input type="text" id="genClient" placeholder="Ex: @cliente123...">
+        </div>
+        <div>
+          <button class="btn" style="height:42px;width:100%;" onclick="generateKey()">✦ Gerar Chave</button>
+        </div>
+      </div>
+      <div id="genResult" style="display:none;margin-top:16px;background:#0d061c;border:1px solid #7c3aed;padding:14px;border-radius:10px;">
+        <span style="font-size:12px;color:var(--text-muted);">Nova Chave Pronta para Envio:</span>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <input type="text" id="genResultKey" readonly style="flex:1;background:#000;border:1px solid #4a2282;padding:8px 12px;border-radius:6px;color:#fff;font-family:monospace;font-size:14px;font-weight:700;">
+          <button class="btn" onclick="copyGenResult()">📋 Copiar Chave</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Chaves -->
+    <div class="section-box">
+      <div class="section-head">
+        <span>📋 Chaves Emitidas & Computadores Vinculados (HWID)</span>
+        <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="loadKeys()">🔄 Atualizar</button>
+      </div>
+      <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Buscar por chave, HWID, plano ou cliente..." oninput="filterTable()">
+      
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Chave de Ativação</th>
+              <th>Status</th>
+              <th>Plano</th>
+              <th>HWID Trancado</th>
+              <th>Ativação</th>
+              <th>Duração / Validade</th>
+              <th>Cliente</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="keysTableBody">
+            <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">Carregando dados...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let allKeys = [];
+    let currentSecret = localStorage.getItem('velvy_admin_secret') || 'VELVY_MASTER_SECRET_SECURITY_PROD_2026';
+
+    document.getElementById('adminSecretInput').value = currentSecret;
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function saveSecret() {
+      const s = document.getElementById('adminSecretInput').value.trim();
+      if (!s) return alert('Insira a chave mestra.');
+      currentSecret = s;
+      localStorage.setItem('velvy_admin_secret', s);
+      showToast('Conectado! Atualizando dados...');
+      loadKeys();
+    }
+
+    async function fetchApi(endpoint, options = {}) {
+      const headers = options.headers || {};
+      headers['Authorization'] = `Bearer ${currentSecret}`;
+      headers['Content-Type'] = 'application/json';
+      try {
+        const res = await fetch(endpoint, { ...options, headers });
+        if (res.status === 401 || res.status === 403) {
+          showToast('❌ Acesso negado: Verifique a Senha Mestra!');
+          return null;
+        }
+        return await res.json();
+      } catch (e) {
+        showToast('❌ Falha na conexão com o servidor');
+        return null;
+      }
+    }
+
+    async function loadKeys() {
+      const data = await fetchApi('/api/admin/keys');
+      if (!data || !data.keys) return;
+      allKeys = Object.values(data.keys);
+      renderKPIs();
+      filterTable();
+    }
+
+    function renderKPIs() {
+      let active = 0, pending = 0, inactive = 0;
+      allKeys.forEach(k => {
+        if (k.status === 'revoked' || k.status === 'expired') inactive++;
+        else if (k.hwid) active++;
+        else pending++;
+      });
+      document.getElementById('kpi-total').textContent = allKeys.length;
+      document.getElementById('kpi-active').textContent = active;
+      document.getElementById('kpi-pending').textContent = pending;
+      document.getElementById('kpi-inactive').textContent = inactive;
+    }
+
+    function formatDate(ts) {
+      if (!ts) return '-';
+      const d = new Date(ts);
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function filterTable() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allKeys.filter(k => {
+        return (k.key || '').toLowerCase().includes(query) ||
+               (k.hwid || '').toLowerCase().includes(query) ||
+               (k.plan || '').toLowerCase().includes(query) ||
+               (k.buyerDiscordId || '').toLowerCase().includes(query);
+      });
+
+      const tbody = document.getElementById('keysTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhuma chave encontrada.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(k => {
+        let statusHtml = '';
+        if (k.status === 'revoked') statusHtml = '<span class="status-pill status-revoked">✕ Revogada</span>';
+        else if (k.status === 'expired') statusHtml = '<span class="status-pill status-expired">⏳ Expirada</span>';
+        else if (k.hwid) statusHtml = '<span class="status-pill status-active">✓ Ativa (PC Vinculado)</span>';
+        else statusHtml = '<span class="status-pill status-pending">⏱ Livre (Aguardando 1º Uso)</span>';
+
+        let duracaoHtml = '';
+        if (k.days === -1 || k.days === 0) {
+          duracaoHtml = '<span style="color:#a78bfa;font-weight:700;">∞ Vitalício</span>';
+        } else {
+          if (k.activatedAt && k.expiresAt) {
+            const diffDays = Math.ceil((k.expiresAt - Date.now()) / 86400000);
+            duracaoHtml = diffDays > 0 ? `${diffDays} dia(s) restantes` : '<span style="color:#ef4444;">Expirado</span>';
+          } else {
+            duracaoHtml = `${k.days} dias (Após 1º uso)`;
+          }
+        }
+
+        const hwidHtml = k.hwid 
+          ? `<span class="hwid-badge">${k.hwid}</span> <button class="btn btn-copy" onclick="copyText('${k.hwid}')">Copiar</button>`
+          : '<span style="color:#a38bc6;font-size:11px;">Qualquer PC (1º a ativar)</span>';
+
+        return `
+          <tr>
+            <td>
+              <span class="key-badge">${k.key}</span>
+              <button class="btn btn-copy" onclick="copyText('${k.key}')">Copiar</button>
+            </td>
+            <td>${statusHtml}</td>
+            <td><b>${k.plan || 'Padrão'}</b></td>
+            <td>${hwidHtml}</td>
+            <td>${formatDate(k.activatedAt)}</td>
+            <td>${duracaoHtml}</td>
+            <td>${k.buyerDiscordId ? ('<span style="font-family:monospace;font-size:11px;">' + k.buyerDiscordId + '</span>') : '-'}</td>
+            <td style="text-align:right;">
+              ${k.status !== 'revoked' 
+                ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:11px;" onclick="revokeKey('${k.key}')">Revogar</button>` 
+                : '<span style="color:#f87171;font-size:11px;">Bloqueada</span>'}
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;margin-left:4px;" onclick="deleteKey('${k.key}')">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function copyText(txt) {
+      navigator.clipboard.writeText(txt);
+      showToast(`Copiado: ${txt}`);
+    }
+
+    async function generateKey() {
+      const days = parseInt(document.getElementById('genDays').value);
+      const plan = document.getElementById('genPlan').value.trim() || (days === -1 ? 'Vitalício VIP' : `${days} Dias Pro`);
+      const client = document.getElementById('genClient').value.trim();
+
+      const res = await fetchApi('/api/admin/generate', {
+        method: 'POST',
+        body: JSON.stringify({ days, plan, clientName: client })
+      });
+
+      if (res && res.key) {
+        document.getElementById('genResult').style.display = 'block';
+        document.getElementById('genResultKey').value = res.key;
+        showToast(`✅ Chave ${res.key} gerada com sucesso!`);
+        loadKeys();
+      }
+    }
+
+    function copyGenResult() {
+      const k = document.getElementById('genResultKey').value;
+      copyText(k);
+    }
+
+    async function revokeKey(key) {
+      if (!confirm(`Tem certeza que deseja REVOGAR a chave ${key}? O cliente perderá o acesso na hora.`)) return;
+      const res = await fetchApi('/api/admin/revoke', {
+        method: 'POST',
+        body: JSON.stringify({ key })
+      });
+      if (res && res.success) {
+        showToast(`🛑 Chave ${key} revogada!`);
+        loadKeys();
+      }
+    }
+
+    async function deleteKey(key) {
+      if (!confirm(`Excluir permanentemente o registro da chave ${key}?`)) return;
+      const res = await fetchApi('/api/admin/delete', {
+        method: 'POST',
+        body: JSON.stringify({ key })
+      });
+      if (res && res.success) {
+        showToast(`🗑 Chave removida do banco!`);
+        loadKeys();
+      }
+    }
+
+    // Carrega chaves ao abrir
+    loadKeys();
+  </script>
+</body>
+</html>

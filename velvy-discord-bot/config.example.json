@@ -1,0 +1,14 @@
+{
+  "token": "COLOQUE_SEU_TOKEN_DO_BOT_AQUI",
+  "clientId": "1573414633597829180",
+  "guildId": "1563912472677716038",
+  "adminUserId": "1122382041988747265",
+  "adminRoleId": "1563921584484519936",
+  "ticketCategoryId": "1573425846155350086",
+  "welcomeChannelId": "1563925552199499918",
+  "welcomeRulesChannelId": "1563925554795647107",
+  "welcomePlansChannelId": "1563925571405217959",
+  "welcomeLinksChannelId": "1563925559610704024",
+  "apiPort": 7777,
+  "serverSecret": "VELVY_MASTER_SECRET_SECURITY_PROD_2026"
+}
